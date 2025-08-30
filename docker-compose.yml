@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: go-analytics-postgres
+    environment:
+      POSTGRES_DB: analytics
+      POSTGRES_USER: analytics_user
+      POSTGRES_PASSWORD: analytics_password
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - analytics-network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: go-analytics-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - analytics-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: go-analytics-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: false
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - analytics-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  analytics-network:
+    driver: bridge
