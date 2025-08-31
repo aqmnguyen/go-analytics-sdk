@@ -3,14 +3,16 @@ package handlers
 import (
 	"analytics-api/types"
 	"analytics-api/utils"
-	"database/sql"
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/redis/go-redis/v9"
 )
 
-func ClickHandler(db *sql.DB) http.HandlerFunc {
+func ClickHandler(redisClient *redis.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var clickEvent types.ClickEvent
@@ -28,16 +30,17 @@ func ClickHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		log.Printf("Click event: %v", clickEvent)
+		log.Printf("Click event received: %v", clickEvent)
 
-		dbErr := InsertClickEvent(db, clickEvent)
-		if dbErr != nil {
-			log.Printf("Error inserting click event: %v", dbErr)
+		// Publish to Redis stream
+		redisErr := PublishClickEvent(redisClient, clickEvent)
+		if redisErr != nil {
+			log.Printf("Error publishing click event to Redis: %v", redisErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
-		log.Printf("Click event inserted successfully")
+		log.Printf("Click event published to Redis successfully")
 
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
@@ -53,19 +56,34 @@ func ClickHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func InsertClickEvent(db *sql.DB, clickEvent types.ClickEvent) error {
-	eventData := map[string]interface{}{
-		"element":    clickEvent.Element,
-		"referrer":   getStringValue(clickEvent.Referrer),
-		"ip_address": getStringValue(clickEvent.IpAddress),
-		"user_agent": getStringValue(clickEvent.UserAgent),
+func PublishClickEvent(redisClient *redis.Client, clickEvent types.ClickEvent) error {
+	// Create Event object for Redis stream
+	event := map[string]interface{}{
+		"event_type": "click",
+		"user_id":    clickEvent.UserId,
+		"url":        clickEvent.Url,
+		"data": map[string]interface{}{
+			"element":    clickEvent.Element,
+			"referrer":   utils.GetStringValue(clickEvent.Referrer),
+			"ip_address": utils.GetStringValue(clickEvent.IpAddress),
+			"user_agent": utils.GetStringValue(clickEvent.UserAgent),
+		},
 	}
 
-	jsonData, err := json.Marshal(eventData)
+	// Marshal the event to JSON
+	jsonData, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("INSERT INTO events (user_id, event_type, event_url, event_data) VALUES ($1, $2, $3, $4)", clickEvent.UserId, clickEvent.Event, clickEvent.Url, jsonData)
+	// Publish to Redis stream
+	ctx := context.Background()
+	err = redisClient.XAdd(ctx, &redis.XAddArgs{
+		Stream: "events:live",
+		Values: map[string]interface{}{
+			"event": string(jsonData),
+		},
+	}).Err()
+
 	return err
 }

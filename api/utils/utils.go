@@ -24,3 +24,10 @@ func ValidateRequired(event interface{}) []string {
 
 	return missing
 }
+
+func GetStringValue(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}

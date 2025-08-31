@@ -3,14 +3,16 @@ package handlers
 import (
 	"analytics-api/types"
 	"analytics-api/utils"
-	"database/sql"
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/redis/go-redis/v9"
 )
 
-func PageviewHandler(db *sql.DB) http.HandlerFunc {
+func PageviewHandler(redisClient *redis.Client) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -31,9 +33,10 @@ func PageviewHandler(db *sql.DB) http.HandlerFunc {
 
 		log.Printf("Pageview event: %v", pageviewEvent)
 
-		dbErr := InsertPageviewEvent(db, pageviewEvent)
-		if dbErr != nil {
-			log.Printf("Error inserting pageview event: %v", dbErr)
+		// Publish to Redis stream
+		redisErr := PublishPageviewEvent(redisClient, pageviewEvent)
+		if redisErr != nil {
+			log.Printf("Error publishing click event to Redis: %v", redisErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
@@ -53,26 +56,35 @@ func PageviewHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func InsertPageviewEvent(db *sql.DB, pageviewEvent types.PageviewEvent) error {
-	eventData := map[string]interface{}{
-		"referrer":   getStringValue(pageviewEvent.Referrer),
-		"ip_address": getStringValue(pageviewEvent.IpAddress),
-		"user_agent": getStringValue(pageviewEvent.UserAgent),
+func PublishPageviewEvent(redisClient *redis.Client, pageviewEvent types.PageviewEvent) error {
+	// Create Event object for Redis stream
+
+	event := map[string]interface{}{
+		"event_type": "pageview",
+		"user_id":    pageviewEvent.UserId,
+		"url":        pageviewEvent.Url,
+		"data": map[string]interface{}{
+			"referrer":   utils.GetStringValue(pageviewEvent.Referrer),
+			"ip_address": utils.GetStringValue(pageviewEvent.IpAddress),
+			"user_agent": utils.GetStringValue(pageviewEvent.UserAgent),
+		},
 	}
 
-	jsonData, err := json.Marshal(eventData)
+	// Marshal the event to JSON
+	jsonData, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("INSERT INTO events (user_id, event_type, event_url, event_data) VALUES ($1, $2, $3, $4)",
-		pageviewEvent.UserId, pageviewEvent.Event, pageviewEvent.Url, jsonData)
-	return err
-}
+	// Publish to Redis stream
+	ctx := context.Background()
+	err = redisClient.XAdd(ctx, &redis.XAddArgs{
+		Stream: "events:live",
+		Values: map[string]interface{}{
+			"event": string(jsonData),
+		},
+	}).Err()
 
-func getStringValue(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
+	return err
+
 }
