@@ -61,9 +61,10 @@ func PublishClickEvent(redisClient *redis.Client, clickEvent types.ClickEvent) e
 	// Create Event object for Redis stream
 	event := map[string]interface{}{
 		"event_type": "click",
+		"client_id":  clickEvent.ClientId,
 		"user_id":    clickEvent.UserId,
 		"url":        clickEvent.Url,
-		"data": map[string]interface{}{
+		"event_data": map[string]interface{}{
 			"element":    clickEvent.Element,
 			"referrer":   utils.GetStringValue(clickEvent.Referrer),
 			"ip_address": utils.GetStringValue(clickEvent.IpAddress),

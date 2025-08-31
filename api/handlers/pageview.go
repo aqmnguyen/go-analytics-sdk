@@ -61,9 +61,10 @@ func PublishPageviewEvent(redisClient *redis.Client, pageviewEvent types.Pagevie
 	// Create Event object for Redis stream
 	event := map[string]interface{}{
 		"event_type": "pageview",
+		"client_id":  pageviewEvent.ClientId,
 		"user_id":    pageviewEvent.UserId,
 		"url":        pageviewEvent.Url,
-		"data": map[string]interface{}{
+		"event_data": map[string]interface{}{
 			"referrer":   utils.GetStringValue(pageviewEvent.Referrer),
 			"ip_address": utils.GetStringValue(pageviewEvent.IpAddress),
 			"user_agent": utils.GetStringValue(pageviewEvent.UserAgent),

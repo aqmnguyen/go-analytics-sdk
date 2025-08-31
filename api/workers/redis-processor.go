@@ -7,6 +7,8 @@ import (
 	"log"
 	"time"
 
+	"analytics-api/types"
+
 	"github.com/redis/go-redis/v9"
 )
 
@@ -14,13 +16,6 @@ type RedisProcessor struct {
 	redisClient *redis.Client
 	db          *sql.DB
 	ctx         context.Context
-}
-
-type Event struct {
-	EventType string                 `json:"event_type"`
-	UserID    string                 `json:"user_id"`
-	URL       string                 `json:"url"`
-	EventData map[string]interface{} `json:"event_data"`
 }
 
 func ConnectRedis() *redis.Client {
@@ -90,7 +85,7 @@ func (rp *RedisProcessor) processEvents() {
 
 				// Parse the event
 				eventJSON := message.Values["event"].(string)
-				var event Event
+				var event types.RedisEvent
 				err := json.Unmarshal([]byte(eventJSON), &event)
 				if err != nil {
 					log.Printf("Error unmarshaling event: %v", err)
@@ -106,9 +101,9 @@ func (rp *RedisProcessor) processEvents() {
 
 				// Store in PostgreSQL
 				_, err = rp.db.Exec(`
-					INSERT INTO events (user_id, event_type, event_url, event_data)
-					VALUES ($1, $2, $3, $4)`,
-					event.UserID, event.EventType, event.URL, jsonData)
+					INSERT INTO events (user_id, event_type, client_id, event_url, event_data)
+					VALUES ($1, $2, $3, $4, $5)`,
+					event.UserID, event.EventType, event.ClientId, event.URL, jsonData)
 
 				if err != nil {
 					log.Printf("DB insert error: %v", err)
