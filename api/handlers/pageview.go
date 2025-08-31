@@ -57,8 +57,8 @@ func PageviewHandler(redisClient *redis.Client) http.HandlerFunc {
 }
 
 func PublishPageviewEvent(redisClient *redis.Client, pageviewEvent types.PageviewEvent) error {
-	// Create Event object for Redis stream
 
+	// Create Event object for Redis stream
 	event := map[string]interface{}{
 		"event_type": "pageview",
 		"user_id":    pageviewEvent.UserId,

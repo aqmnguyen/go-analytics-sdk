@@ -57,6 +57,7 @@ func ClickHandler(redisClient *redis.Client) http.HandlerFunc {
 }
 
 func PublishClickEvent(redisClient *redis.Client, clickEvent types.ClickEvent) error {
+
 	// Create Event object for Redis stream
 	event := map[string]interface{}{
 		"event_type": "click",

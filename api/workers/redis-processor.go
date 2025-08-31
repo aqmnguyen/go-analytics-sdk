@@ -23,6 +23,33 @@ type Event struct {
 	EventData map[string]interface{} `json:"event_data"`
 }
 
+func ConnectRedis() *redis.Client {
+	client := redis.NewClient(&redis.Options{
+		Addr:         "localhost:6379", // Redis server address
+		Password:     "",               // No password for local development
+		DB:           0,                // Default DB
+		DialTimeout:  10 * time.Second,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		PoolSize:     10,
+		MinIdleConns: 5,
+	})
+
+	// Test the connection
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := client.Ping(ctx).Result()
+	if err != nil {
+		log.Printf("Warning: Could not connect to Redis: %v", err)
+		log.Println("Redis connection failed - events will not be queued")
+		return nil
+	}
+
+	log.Println("Successfully connected to Redis")
+	return client
+}
+
 func NewRedisProcessor(redisClient *redis.Client, db *sql.DB) *RedisProcessor {
 	processor := &RedisProcessor{
 		redisClient: redisClient,
