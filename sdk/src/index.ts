@@ -17,8 +17,16 @@ export class AnalyticsSDK {
 
   async sendEvent(event: Event) {
     try {
-      event.eventData = event.eventData || {};
+      if (this.config.debug) {
+        console.log('Event to send:', event);
+      }
+
+      event.event_data = event.event_data || {};
       this._validateEvent(event);
+
+      if (this.config.debug) {
+        console.log('Event validated, attempting to send...');
+      }
 
       const { baseUrl = 'http://localhost:8080', clientId } = this.config;
       const { event_type } = event;
@@ -31,8 +39,15 @@ export class AnalyticsSDK {
       const response = await fetch(url, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ ...event, client_id: clientId }),
+        body: JSON.stringify({
+          ...event,
+          client_id: clientId,
+        }),
       });
+
+      if (this.config.debug) {
+        console.log('Event sent:', event);
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -54,9 +69,9 @@ export class AnalyticsSDK {
       throw new Error('Client ID is required');
     }
 
-    const { user_id, event_type, event_url, eventData = {} } = event;
+    const { user_id, event_type, event_url, event_data = {} } = event;
 
-    if (!user_id || !event_type || !event_url || !eventData) {
+    if (!user_id || !event_type || !event_url || !event_data) {
       throw new Error('User ID, event type and event URL are required');
     }
 
@@ -64,7 +79,7 @@ export class AnalyticsSDK {
       throw new Error('Invalid event type, must be either pageview or click');
     }
 
-    if (typeof eventData !== 'object') {
+    if (typeof event_data !== 'object') {
       throw new Error('Event data must be an object');
     }
   }

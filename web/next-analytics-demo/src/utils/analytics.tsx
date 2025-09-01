@@ -25,7 +25,7 @@ export function trackEvent(
   event_data: Record<string, any>
 ) {
   const analytics = Analytics();
-  console.log(analytics);
+
   const { event_url, page_data } = _getCurrentPageData();
   event_data = {
     ...event_data,
@@ -39,12 +39,7 @@ export function trackEvent(
     event_data,
   };
 
-  console.log(data);
-
   analytics.sendEvent(data);
-  if (analytics.getConfig().debug) {
-    console.log('Event sent:', data);
-  }
 }
 
 export function _getCurrentPageData() {

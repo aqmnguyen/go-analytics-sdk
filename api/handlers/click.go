@@ -64,12 +64,7 @@ func PublishClickEvent(redisClient *redis.Client, clickEvent types.ClickEvent) e
 		"client_id":  clickEvent.ClientId,
 		"user_id":    clickEvent.UserId,
 		"event_url":  clickEvent.EventUrl,
-		"event_data": map[string]interface{}{
-			"element":    clickEvent.Element,
-			"referrer":   utils.GetStringValue(clickEvent.Referrer),
-			"ip_address": utils.GetStringValue(clickEvent.IpAddress),
-			"user_agent": utils.GetStringValue(clickEvent.UserAgent),
-		},
+		"event_data": clickEvent.EventData,
 	}
 
 	// Marshal the event to JSON

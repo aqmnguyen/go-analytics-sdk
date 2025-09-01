@@ -64,11 +64,7 @@ func PublishPageviewEvent(redisClient *redis.Client, pageviewEvent types.Pagevie
 		"client_id":  pageviewEvent.ClientId,
 		"user_id":    pageviewEvent.UserId,
 		"event_url":  pageviewEvent.EventUrl,
-		"event_data": map[string]interface{}{
-			"referrer":   utils.GetStringValue(pageviewEvent.Referrer),
-			"ip_address": utils.GetStringValue(pageviewEvent.IpAddress),
-			"user_agent": utils.GetStringValue(pageviewEvent.UserAgent),
-		},
+		"event_data": pageviewEvent.EventData,
 	}
 
 	// Marshal the event to JSON
