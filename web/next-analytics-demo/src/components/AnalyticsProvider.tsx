@@ -10,7 +10,7 @@ export default function AnalyticsProvider({
   useEffect(() => {
     // Initialize the analytics instance
     const analytics = Analytics();
-    // console.log(analytics);
+    console.log(analytics);
     trackEvent('user_007', 'pageview', {});
   }, []);
 

@@ -9,8 +9,11 @@ type ClickEvent struct {
 }
 
 type ClickEventData struct {
-	Element   *string `json:"element"`
-	Referrer  *string `json:"referrer"`
-	IpAddress *string `json:"ip_address"`
-	UserAgent *string `json:"user_agent"`
+	Element      *string `json:"element"`
+	ProductId    *string `json:"product_id"`
+	ProductName  *string `json:"product_name"`
+	ProductPrice *string `json:"product_price"`
+	Referrer     *string `json:"referrer"`
+	IpAddress    *string `json:"ip_address"`
+	UserAgent    *string `json:"user_agent"`
 }
