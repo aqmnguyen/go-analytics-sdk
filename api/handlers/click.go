@@ -63,7 +63,7 @@ func PublishClickEvent(redisClient *redis.Client, clickEvent types.ClickEvent) e
 		"event_type": "click",
 		"client_id":  clickEvent.ClientId,
 		"user_id":    clickEvent.UserId,
-		"url":        clickEvent.Url,
+		"event_url":  clickEvent.EventUrl,
 		"event_data": map[string]interface{}{
 			"element":    clickEvent.Element,
 			"referrer":   utils.GetStringValue(clickEvent.Referrer),

@@ -63,7 +63,7 @@ func PublishPageviewEvent(redisClient *redis.Client, pageviewEvent types.Pagevie
 		"event_type": "pageview",
 		"client_id":  pageviewEvent.ClientId,
 		"user_id":    pageviewEvent.UserId,
-		"url":        pageviewEvent.Url,
+		"event_url":  pageviewEvent.EventUrl,
 		"event_data": map[string]interface{}{
 			"referrer":   utils.GetStringValue(pageviewEvent.Referrer),
 			"ip_address": utils.GetStringValue(pageviewEvent.IpAddress),

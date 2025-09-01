@@ -103,7 +103,7 @@ func (rp *RedisProcessor) processEvents() {
 				_, err = rp.db.Exec(`
 					INSERT INTO events (user_id, event_type, client_id, event_url, event_data)
 					VALUES ($1, $2, $3, $4, $5)`,
-					event.UserID, event.EventType, event.ClientId, event.URL, jsonData)
+					event.UserID, event.EventType, event.ClientId, event.EventUrl, jsonData)
 
 				if err != nil {
 					log.Printf("DB insert error: %v", err)
