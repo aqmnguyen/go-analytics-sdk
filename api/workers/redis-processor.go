@@ -62,14 +62,19 @@ func NewRedisProcessor(redisClient *redis.Client, db *sql.DB) *RedisProcessor {
 func (rp *RedisProcessor) processEvents() {
 	log.Println("Starting events processor...")
 
-	// Track last processed ID to only read new events
-	lastID := "0"
+	// Create consumer group if it doesn't exist
+	err := rp.redisClient.XGroupCreate(rp.ctx, "events:live", "analytics-processor", "0").Err()
+	if err != nil && err.Error() != "BUSYGROUP Consumer Group name already exists" {
+		log.Printf("Error creating consumer group: %v", err)
+	}
 
 	for {
-		// Read from Redis stream starting from last processed ID
-		result, err := rp.redisClient.XRead(rp.ctx, &redis.XReadArgs{
-			Streams: []string{"events:live", lastID},
-			Block:   0,
+		// Read from consumer group - only gets unprocessed messages
+		result, err := rp.redisClient.XReadGroup(rp.ctx, &redis.XReadGroupArgs{
+			Group:    "analytics-processor",
+			Consumer: "worker-1",
+			Streams:  []string{"events:live", ">"}, // ">" means only new messages
+			Block:    0,
 		}).Result()
 
 		if err != nil {
@@ -80,15 +85,14 @@ func (rp *RedisProcessor) processEvents() {
 
 		for _, stream := range result {
 			for _, message := range stream.Messages {
-				// Update last processed ID to avoid reprocessing
-				lastID = message.ID
-
 				// Parse the event
 				eventJSON := message.Values["event"].(string)
 				var event types.RedisEvent
 				err := json.Unmarshal([]byte(eventJSON), &event)
 				if err != nil {
 					log.Printf("Error unmarshaling event: %v", err)
+					// Acknowledge even failed messages to prevent infinite retries
+					rp.redisClient.XAck(rp.ctx, "events:live", "analytics-processor", message.ID)
 					continue
 				}
 
@@ -96,6 +100,7 @@ func (rp *RedisProcessor) processEvents() {
 				jsonData, err := json.Marshal(event.EventData)
 				if err != nil {
 					log.Printf("Error marshaling event data: %v", err)
+					rp.redisClient.XAck(rp.ctx, "events:live", "analytics-processor", message.ID)
 					continue
 				}
 
@@ -107,9 +112,12 @@ func (rp *RedisProcessor) processEvents() {
 
 				if err != nil {
 					log.Printf("DB insert error: %v", err)
+					// Don't acknowledge failed DB inserts - they'll be retried
 					continue
 				}
 
+				// Acknowledge successful processing - removes from pending list
+				rp.redisClient.XAck(rp.ctx, "events:live", "analytics-processor", message.ID)
 				log.Printf("Processed %s event for user: %s", event.EventType, event.UserID)
 			}
 		}
