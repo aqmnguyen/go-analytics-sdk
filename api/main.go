@@ -40,6 +40,7 @@ func main() {
 
 	http.HandleFunc("/event/click", enableCORS(handlers.ClickHandler(redisClient)))
 	http.HandleFunc("/event/pageview", enableCORS(handlers.PageviewHandler(redisClient)))
+	http.HandleFunc("/event/conversion", enableCORS(handlers.ConversionHandler(redisClient)))
 
 	fmt.Fprintf(os.Stdout, "Listening on port %s\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

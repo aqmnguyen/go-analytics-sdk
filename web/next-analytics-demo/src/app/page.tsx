@@ -1,5 +1,6 @@
 import AnalyticsProvider from '@/components/AnalyticsProvider';
 import ProductCard from '@/components/ProductCard';
+import CartIcon from '@/components/CartIcon';
 
 export default function Home() {
   const products = [
@@ -10,6 +11,7 @@ export default function Home() {
       description:
         'Premium wireless headphones with noise cancellation and 30-hour battery life.',
       image: '/images/headphones.jpg',
+      category: ['headphones', 'electronics'],
     },
     {
       id: 'product-2',
@@ -18,6 +20,7 @@ export default function Home() {
       description:
         'Advanced smartwatch with health tracking, GPS, and water resistance.',
       image: '/images/smartwatch.jpg',
+      category: ['smartwatch', 'electronics'],
     },
     {
       id: 'product-3',
@@ -26,12 +29,14 @@ export default function Home() {
       description:
         'Portable Bluetooth speaker with 360-degree sound and 12-hour battery.',
       image: '/images/speaker.jpg',
+      category: ['speaker', 'electronics'],
     },
   ];
 
   return (
     <>
       <AnalyticsProvider />
+      <CartIcon />
       <div className='min-h-screen bg-gray-50 py-8'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='text-center mb-12'>
@@ -52,6 +57,7 @@ export default function Home() {
                 price={product.price}
                 description={product.description}
                 image={product.image}
+                category={product.category}
               />
             ))}
           </div>
