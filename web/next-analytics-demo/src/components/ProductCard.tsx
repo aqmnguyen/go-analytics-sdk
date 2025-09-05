@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { trackEvent } from '@/utils/analytics';
+import { useCartStore } from '@/utils/cartStore';
 
 interface ProductCardProps {
   id: string;
@@ -9,6 +10,7 @@ interface ProductCardProps {
   price: string;
   description: string;
   image: string;
+  category: string[];
 }
 
 export default function ProductCard({
@@ -17,8 +19,19 @@ export default function ProductCard({
   price,
   description,
   image,
+  category,
 }: ProductCardProps) {
+  const addItem = useCartStore((state) => state.addItem);
+
   const handleAddToCart = () => {
+    addItem({
+      id,
+      name,
+      price: parseFloat(price.replace('$', '')).toString(),
+      quantity: '1',
+      category,
+    });
+
     trackEvent('user_007', 'click', {
       element: 'add_to_cart_button',
       product_id: id,

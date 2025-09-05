@@ -75,8 +75,14 @@ export class AnalyticsSDK {
       throw new Error('User ID, event type and event URL are required');
     }
 
-    if (event_type !== 'pageview' && event_type !== 'click') {
-      throw new Error('Invalid event type, must be either pageview or click');
+    if (
+      event_type !== 'pageview' &&
+      event_type !== 'click' &&
+      event_type !== 'conversion'
+    ) {
+      throw new Error(
+        'Invalid event type, must be either pageview, click or conversion'
+      );
     }
 
     if (typeof event_data !== 'object') {
