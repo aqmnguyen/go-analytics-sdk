@@ -201,12 +201,6 @@ The service automatically connects to PostgreSQL and creates necessary tables on
 - Implements consumer groups for reliable processing
 - Automatic retry logic for failed events
 
-### **CORS Configuration**
-
-- Enabled for all origins (`*`) in development
-- Configurable for production environments
-- Supports preflight OPTIONS requests
-
 ## 🏃‍♂️ Development
 
 ### **Hot Reload with Air**
@@ -217,28 +211,6 @@ go install github.com/cosmtrek/air@latest
 
 # Run with hot reload
 air
-```
-
-### **Project Structure**
-
-```
-api/
-├── main.go              # Application entry point
-├── handlers/            # HTTP request handlers
-│   ├── pageview.go      # Pageview event handler
-│   ├── click.go         # Click event handler
-│   └── conversion.go    # Conversion event handler
-├── types/               # Data structures
-│   ├── pageview.go      # Pageview event type
-│   ├── click.go         # Click event type
-│   └── conversion.go    # Conversion event type
-├── workers/             # Background workers
-│   └── redis-processor.go # Redis stream processor
-├── config/              # Configuration
-│   └── database.go      # Database connection
-├── utils/               # Utility functions
-│   └── utils.go         # Helper functions
-└── .air.toml           # Air configuration
 ```
 
 ## 🚀 Production Deployment
@@ -261,28 +233,6 @@ export PORT=8080
 
 # Note: Database and Redis connections are hardcoded
 # For production, you'll need to modify the source code to use environment variables
-```
-
-### **Run Production**
-
-```bash
-./analytics-api
-```
-
-### **Docker Deployment**
-
-```dockerfile
-FROM golang:1.21-alpine AS builder
-WORKDIR /app
-COPY . .
-RUN go mod tidy
-RUN go build -o analytics-api main.go
-
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /app/analytics-api .
-CMD ["./analytics-api"]
 ```
 
 ## 📈 Monitoring & Logging
@@ -393,14 +343,6 @@ hey -n 1000 -c 10 -m POST -H "Content-Type: application/json" \
   "status": 400
 }
 ```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## 📄 License
 

@@ -42,30 +42,6 @@ npm run dev
 yarn dev
 ```
 
-The demo will be available at `http://localhost:3000`
-
-## 🏗️ Project Structure
-
-```
-next-analytics-demo/
-├── src/
-│   ├── app/
-│   │   └── page.tsx              # Main demo page
-│   ├── components/
-│   │   ├── AnalyticsProvider.tsx # Analytics initialization
-│   │   ├── ProductCard.tsx       # Product display component
-│   │   └── CartIcon.tsx          # Shopping cart component
-│   └── utils/
-│       ├── analytics.tsx         # Analytics SDK integration
-│       └── cartStore.tsx         # Zustand cart state
-├── public/
-│   └── images/                   # Product images
-├── package.json
-├── next.config.ts
-├── tailwind.config.js
-└── tsconfig.json
-```
-
 ## 🎯 Demo Features
 
 ### **Analytics Tracking**
@@ -119,29 +95,6 @@ trackEvent('user_007', 'conversion', {
 });
 ```
 
-## 🛒 Shopping Cart Implementation
-
-### **Zustand Store**
-
-```typescript
-// src/utils/cartStore.tsx
-interface CartStore {
-  items: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
-  getTotal: () => number;
-}
-```
-
-### **Cart Features**
-
-- **Add Items** - Increment quantity for existing items
-- **Update Quantities** - Modify item quantities
-- **Calculate Total** - Real-time price calculation
-- **Clear Cart** - Reset cart state
-
 ## 🧪 Testing the Demo
 
 ### **1. Start the Backend**
@@ -175,81 +128,6 @@ npm run dev
 - **Go Server Logs** - Event processing confirmation
 - **PostgreSQL** - Stored event data
 - **Redis** - Event queue status
-
-## 🔍 Troubleshooting
-
-### **Common Issues**
-
-**Analytics not working:**
-
-- Check Go API is running on `localhost:8080`
-- Verify Redis and PostgreSQL are running
-- Check browser console for errors
-- Ensure CORS is properly configured
-
-**Images not loading:**
-
-- Verify images exist in `public/images/`
-- Check file paths in product data
-- Ensure Next.js image optimization is working
-
-**Cart not updating:**
-
-- Check Zustand store implementation
-- Verify component state updates
-- Check for JavaScript errors
-
-**Build errors:**
-
-- Clear `.next` directory
-- Reinstall dependencies
-- Check TypeScript configuration
-
-## 📱 Responsive Design
-
-The demo is fully responsive with:
-
-- **Mobile-first** approach
-- **Flexible grid** layouts
-- **Touch-friendly** buttons
-- **Optimized images** for different screen sizes
-- **Readable typography** across devices
-
-## 🎯 Learning Objectives
-
-This demo demonstrates:
-
-- **SDK Integration** - How to use the Analytics SDK in Next.js
-- **State Management** - Zustand for client-side state
-- **Event Tracking** - Real-world analytics implementation
-- **Component Architecture** - Reusable React components
-- **TypeScript Usage** - Type-safe development
-- **Responsive Design** - Mobile-first UI development
-
-## 🚀 Production Deployment
-
-### **Build for Production**
-
-```bash
-npm run build
-```
-
-### **Deploy to Vercel**
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-```
-
-### **Environment Variables**
-
-Set in your deployment platform:
-
-- `NEXT_PUBLIC_ANALYTICS_CLIENT_ID`
-- `NEXT_PUBLIC_ANALYTICS_BASE_URL`
 
 ## 📄 License
 

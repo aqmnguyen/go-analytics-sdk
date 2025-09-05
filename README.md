@@ -258,26 +258,8 @@ npm publish
 - `POST /event/conversion` - Track conversion events
 - `GET /health` - Health check endpoint
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
 ## 📄 License
 
 MIT License - see LICENSE file for details
-
-## 🆘 Support
-
-For issues and questions:
-
-- Create an issue in this repository
-- Check the demo application for usage examples
-- Review the API logs for debugging
-
----
 
 **Built with ❤️ using Go, TypeScript, Next.js, Redis, and PostgreSQL**
