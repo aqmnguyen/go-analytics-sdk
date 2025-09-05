@@ -42,8 +42,8 @@ func ClickHandler(redisClient *redis.Client) http.HandlerFunc {
 
 		log.Printf("Click event published to Redis successfully")
 
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 
 		jsonBytes, err := json.Marshal(clickEvent)
 		if err != nil {

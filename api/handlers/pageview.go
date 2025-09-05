@@ -43,8 +43,8 @@ func PageviewHandler(redisClient *redis.Client) http.HandlerFunc {
 
 		log.Printf("Pageview event inserted successfully")
 
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 
 		jsonBytes, err := json.Marshal(pageviewEvent)
 		if err != nil {

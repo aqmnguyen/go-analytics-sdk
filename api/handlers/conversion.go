@@ -42,8 +42,8 @@ func ConversionHandler(redisClient *redis.Client) http.HandlerFunc {
 
 		log.Printf("Conversion event published to Redis successfully")
 
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 
 		jsonBytes, err := json.Marshal(conversionEvent)
 		if err != nil {
