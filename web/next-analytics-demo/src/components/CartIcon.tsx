@@ -10,9 +10,9 @@ export default function CartIcon() {
     0
   );
 
-  const orderId = Math.random().toString(36).substring(2, 8);
 
   const handleCheckout = () => {
+    const orderId = Math.random().toString(36).substring(2, 8);
     // Track checkout event
     trackEvent('user_007', 'click', {
       element: 'checkout_button',
